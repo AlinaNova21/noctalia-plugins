@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the `AlinaNova21/ss14-status` Noctalia plugin — a bar widget with SS14 logo + aggregate count, a tooltip with per-server quick info, and a floating panel with detailed rows (players, map, round, preset, panic bunker / baby jail flags, round time), launch-via-Steam and copy actions, an in-panel editable server list persisted to JSON, and append-only sync from the SS14 launcher's `settings.db` favorites.
+**Goal:** Build the `alinanova21/ss14-status` Noctalia plugin — a bar widget with SS14 logo + aggregate count, a tooltip with per-server quick info, and a floating panel with detailed rows (players, map, round, preset, panic bunker / baby jail flags, round time), launch-via-Steam and copy actions, an in-panel editable server list persisted to JSON, and append-only sync from the SS14 launcher's `settings.db` favorites.
 
 **Architecture:** One `[[service]]` polls every configured server's `/status` (and caches `/info` once per session), normalizes rows, and publishes them to `noctalia.state`. The `[[widget]]` (bar) and `[[panel]]` entries watch that state and render only — no HTTP, one poller, shared data — the world_clock pattern. The config lives in `pluginDataDir()/servers.json`; edits flow from the panel back through a state command channel to the service.
 
@@ -31,7 +31,7 @@
 
 ```toml
 # SS14 Status — live status for a configurable list of Space Station 14 servers.
-id = "AlinaNova21/ss14-status"
+id = "alinanova21/ss14-status"
 name = "SS14 Status"
 version = "0.1.0"
 plugin_api = 9
@@ -667,7 +667,7 @@ function update()
 end
 
 function onClick()
-  noctalia.togglePanel("AlinaNova21/ss14-status:list")
+  noctalia.togglePanel("alinanova21/ss14-status:list")
 end
 
 noctalia.state.watch(STATE_KEY, function(value)
@@ -996,7 +996,7 @@ Run the pure unit tests again: `luau ss14-status/tests/uri_spec.luau && luau ss1
 
 - [ ] **Step 4: Manual smoke (dev machine)**
 
-- Place the widget on a bar via Noctalia UI (`Add widget → AlinaNova21/ss14-status:bar`).
+- Place the widget on a bar via Noctalia UI (`Add widget → alinanova21/ss14-status:bar`).
 - Expected during next poll: `plane` glyph + `1/2` count; tooltip shows Delta-v/Quantum Blue live rows; `⛨`/`👶` reflect live flags.
 - Click → panel opens; rows show name/players/map/round/preset/time.
 - Launch on an online row: dry-run `steam steam://run/1255460//<uri>`; verify `commandExists` + launch accepted.

@@ -17,7 +17,7 @@ right in your Noctalia bar.
 
 1. Add this repository as a plugin source:
    `noctalia msg plugins source add <name> git <url>`
-2. Enable `AlinaNova21/ss14-status`, then add the **bar** widget from the Add-widget picker.
+2. Enable `alinanova21/ss14-status`, then add the **bar** widget from the Add-widget picker.
 
 ## Configuration
 
@@ -44,10 +44,10 @@ launcher favorites with **Sync**.
 ## IPC
 
 ```
-noctalia msg AlinaNova21/ss14-status poll         # force a poll now
-noctalia msg AlinaNova21/ss14-status add ss14s://host
-noctalia msg AlinaNova21/ss14-status remove ss14s://host
-noctalia msg AlinaNova21/ss14-status sync         # import launcher favorites
+noctalia msg alinanova21/ss14-status poll         # force a poll now
+noctalia msg alinanova21/ss14-status add ss14s://host
+noctalia msg alinanova21/ss14-status remove ss14s://host
+noctalia msg alinanova21/ss14-status sync         # import launcher favorites
 ```
 
 ## Notes

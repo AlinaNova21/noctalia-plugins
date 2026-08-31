@@ -99,7 +99,7 @@ function update()
 end
 
 function onClick()
-  noctalia.togglePanel("AlinaNova21/ss14-status:list")
+  noctalia.togglePanel("alinanova21/ss14-status:list")
 end
 
 noctalia.state.watch(STATE_KEY, function(value)
