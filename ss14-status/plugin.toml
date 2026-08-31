@@ -44,7 +44,7 @@ default = true
 key = "steam_appid"
 type = "string"
 label_key = "settings.steam_appid.label"
-default = "1255460"
+default = "1482520"
 
 [[setting]]
 key = "launcher_db_path"

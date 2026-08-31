@@ -36,7 +36,7 @@ local function launchServer(row)
   if not row.online then
     return
   end
-  local appid = noctalia.getConfig("steam_appid") or "1255460"
+  local appid = noctalia.getConfig("steam_appid") or "1482520"
   local ss14 = connUri(row)
   local cmd = "steam steam://run/" .. appid .. "//" .. ss14
   if noctalia.commandExists("steam") then

@@ -25,7 +25,7 @@ right in your Noctalia bar.
 |---|---|---|
 | `poll_seconds` | `30` | How often each server's `/status` is fetched (5–600). |
 | `show_count` | `true` | Show the `online/total` count next to the logo in the bar. |
-| `steam_appid` | `1255460` | Steam app id of the SS14 launcher used for Launch. |
+| `steam_appid` | `1482520` | Steam app id of the SS14 launcher used for Launch. |
 | `launcher_db_path` | `~/.local/share/Space Station 14/launcher/settings.db` | SQLite DB the Sync button reads. |
 
 ## Server URIs
