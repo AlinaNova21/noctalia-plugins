@@ -79,8 +79,9 @@ local function serverRow(row)
     flags[#flags + 1] = noctalia.tr("flag.jail")
   end
 
-  local actions = ui.row({ gap = 4, align = "center" }, {})
-  table.insert(actions.props.children, ui.button({
+  -- Build actions array first (ui.* nodes don't expose .props for children).
+  local actionButtons = {}
+  table.insert(actionButtons, ui.button({
     glyph = "player-play",
     variant = "primary",
     enabled = online,
@@ -89,7 +90,7 @@ local function serverRow(row)
       launchServer(row)
     end,
   }))
-  table.insert(actions.props.children, ui.button({
+  table.insert(actionButtons, ui.button({
     glyph = "copy",
     variant = "ghost",
     tooltip = noctalia.tr("ui.copy_tooltip"),
@@ -98,7 +99,7 @@ local function serverRow(row)
     end,
   }))
   if pendingDelete == row.uri then
-    table.insert(actions.props.children, ui.button({
+    table.insert(actionButtons, ui.button({
       glyph = "check",
       variant = "destructive",
       onClick = function()
@@ -107,7 +108,7 @@ local function serverRow(row)
         render()
       end,
     }))
-    table.insert(actions.props.children, ui.button({
+    table.insert(actionButtons, ui.button({
       glyph = "close",
       variant = "ghost",
       onClick = function()
@@ -116,7 +117,7 @@ local function serverRow(row)
       end,
     }))
   else
-    table.insert(actions.props.children, ui.button({
+    table.insert(actionButtons, ui.button({
       glyph = "trash",
       variant = "ghost",
       tooltip = noctalia.tr("ui.remove_tooltip"),
@@ -126,6 +127,7 @@ local function serverRow(row)
       end,
     }))
   end
+  local actions = ui.row({ gap = 4, align = "center" }, actionButtons)
 
   -- Left column children (built with statements; Luau has no if-expressions).
   local titleRowChildren = {

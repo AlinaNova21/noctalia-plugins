@@ -279,12 +279,16 @@ local function doSync(dbPath)
     noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.no_sqlite"))
     return
   end
-  if not noctalia.fileExists(dbPath) then
-    noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.db_missing"))
-    return
+  if type(dbPath) == "string" then
+    dbPath = noctalia.expandPath(dbPath)
   end
   local dir = noctalia.pluginDir()
   if dir == nil then
+    return
+  end
+  -- Expand ~ (settings store it literally) and resolve relative to plugin dir.
+  if not noctalia.fileExists(dbPath) then
+    noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.db_missing"))
     return
   end
   local script = dir .. "/import_favorites.sh"
