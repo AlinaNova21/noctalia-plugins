@@ -17,7 +17,7 @@ right in your Noctalia bar.
 
 1. Add this repository as a plugin source:
    `noctalia msg plugins source add <name> git <url>`
-2. Enable `alinas/ss14-status`, then add the **bar** widget from the Add-widget picker.
+2. Enable `AlinaNova21/ss14-status`, then add the **bar** widget from the Add-widget picker.
 
 ## Configuration
 
@@ -43,10 +43,10 @@ Defaults: `ss14s://quantumblue.gay`, `ss14://denstation.net:1212`.
 ## IPC
 
 ```
-noctalia msg alinas/ss14-status poll         # force a poll now
-noctalia msg alinas/ss14-status add ss14s://host
-noctalia msg alinas/ss14-status remove ss14s://host
-noctalia msg alinas/ss14-status sync         # import launcher favorites
+noctalia msg AlinaNova21/ss14-status poll         # force a poll now
+noctalia msg AlinaNova21/ss14-status add ss14s://host
+noctalia msg AlinaNova21/ss14-status remove ss14s://host
+noctalia msg AlinaNova21/ss14-status sync         # import launcher favorites
 ```
 
 ## Notes

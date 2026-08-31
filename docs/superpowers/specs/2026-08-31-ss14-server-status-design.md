@@ -2,11 +2,11 @@
 
 **Date:** 2026-08-31
 **Status:** Approved (design conversation)
-**Author:** alina
+**Author:** AlinaNova21
 
 ## Summary
 
-A Noctalia plugin (`alinas/ss14-status`) that shows live status for a configurable list
+A Noctalia plugin (`AlinaNova21/ss14-status`) that shows live status for a configurable list
 of Space Station 14 servers: an SS14 logo widget in the bar with quick-info tooltip,
 and a panel with detailed rows — players, map, round, preset, panic bunker / baby
 jail flags — plus launch-via-Steam and copy-address actions. Optionally syncs
@@ -119,7 +119,7 @@ indicators). State is process-lifetime; the JSON file is the durable list.
   ⛨ bunker · 👶 jail
   ```
   Offline servers rendered red with their error.
-- Widget-level `onClick` → `noctalia.togglePanel("alinas/ss14-status:list")`.
+- Widget-level `onClick` → `noctalia.togglePanel("AlinaNova21/ss14-status:list")`.
 
 ### `[[panel]] list` — `panel.luau`
 
@@ -153,7 +153,7 @@ indicators). State is process-lifetime; the JSON file is the durable list.
 
 ### Manifest (`plugin.toml`)
 
-- `id = "alinas/ss14-status"`, `name = "SS14 Status"`, `icon = "plane"`,
+- `id = "AlinaNova21/ss14-status"`, `name = "SS14 Status"`, `icon = "plane"`,
   `tags = ["games","ss14","server"]`, `plugin_api` per feature needs (module
   `require` needs 22 if used — keep scripts single-file where possible to stay at
   a lower level; target `plugin_api = 19` for `timeFormat` if used, else 3-9).
@@ -189,7 +189,7 @@ via `os.time` / `os.date("*t", ...)`); `round time = nowMs() - start`, formatted
   copy of `settings.db`; assert import adds, dedups, and never removes.
 - **Static**: `luau-lsp` type-check all entries against the repo's `noctalia.d.luau`
   (nonstrict).
-- **Manual**: `noctalia msg` IPC (`alinas/ss14-status poll`, `add`, `remove`,
+- **Manual**: `noctalia msg` IPC (`AlinaNova21/ss14-status poll`, `add`, `remove`,
   `sync`); place the bar widget on a test bar; verify tooltip, panel open, Steam
   launch (dry-run: `commandExists("steam")` + notify), copy-to-clipboard.
 
