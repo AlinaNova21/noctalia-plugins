@@ -25,7 +25,7 @@ right in your Noctalia bar.
 |---|---|---|
 | `poll_seconds` | `30` | How often each server's `/status` is fetched (5–600). |
 | `show_count` | `true` | Show the `online/total` count next to the logo in the bar. |
-| `launcher_path` | `~/.local/share/Steam/steamapps/common/Space Station 14 Playtest/SS14.Launcher` | Direct path to the SS14 launcher binary (preferred for Launch). |
+| `launcher_path` | *(empty — auto-detect)* | SS14 launcher binary path; auto-detected under Steam's actual root (`~/.steam/steam` or `~/.local/share/Steam`). |
 | `steam_appid` | `1482520` | Steam app id of the SS14 launcher (fallback Launch path). |
 | `launcher_db_path` | `~/.local/share/Space Station 14/launcher/settings.db` | SQLite DB the Sync button reads. |
 

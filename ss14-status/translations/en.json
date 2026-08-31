@@ -4,7 +4,7 @@
     "poll_seconds": { "label": "Poll interval (seconds)" },
     "show_count": { "label": "Show aggregate count in bar" },
     "steam_appid": { "label": "Steam app id (launcher)" },
-    "launcher_path": { "label": "SS14 launcher binary path" },
+    "launcher_path": { "label": "SS14 launcher binary path", "description": "Leave empty to auto-detect under ~/.steam/steam or ~/.local/share/Steam." },
     "launcher_db_path": { "label": "Launcher settings database path" }
   },
   "ui": {

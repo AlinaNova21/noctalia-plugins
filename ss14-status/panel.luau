@@ -32,6 +32,32 @@ local function connUri(row)
   return row.uri
 end
 
+-- Locates the SS14 launcher binary. Checks, in order:
+--   1. explicit setting (expandPath handles ~)
+--   2. canonical Steam root ~/.steam/steam (symlinked to real store on most distros)
+--   3. ~/.local/share/Steam (legacy / flatpak-ish layout)
+-- Returns an absolute path used with runAsync arg-array, or nil.
+local function findLauncher()
+  local fromSetting = noctalia.getConfig("launcher_path")
+  if type(fromSetting) == "string" and fromSetting ~= "" then
+    local p = noctalia.expandPath(fromSetting)
+    if noctalia.fileExists(p) then
+      return p
+    end
+  end
+  local home = noctalia.getenv("HOME") or "~"
+  local candidates = {
+    home .. "/.steam/steam/steamapps/common/Space Station 14 Playtest/SS14.Launcher",
+    home .. "/.local/share/Steam/steamapps/common/Space Station 14 Playtest/SS14.Launcher",
+  }
+  for _, p in ipairs(candidates) do
+    if noctalia.fileExists(p) then
+      return p
+    end
+  end
+  return nil
+end
+
 local function launchServer(row)
   if not row.online then
     return
@@ -39,16 +65,13 @@ local function launchServer(row)
   local ss14 = connUri(row)
   -- Prefer the launcher binary directly: it accepts the ss14:// URI as a single
   -- positional argument (SS14.Launcher <uri>). Steam streaming via // is brittle.
-  local launcherPath = noctalia.getConfig("launcher_path")
-  if type(launcherPath) == "string" and launcherPath ~= "" then
-    launcherPath = noctalia.expandPath(launcherPath)
-    if noctalia.fileExists(launcherPath) then
-      if noctalia.runAsync({ launcherPath, ss14 }) then
-        return
-      end
-      noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.launch_failed"))
+  local launcherPath = findLauncher()
+  if launcherPath ~= nil then
+    if noctalia.runAsync({ launcherPath, ss14 }) then
       return
     end
+    noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.launch_failed"))
+    return
   end
   -- Fallback: Steam URI (appid is the launcher itself).
   local appid = noctalia.getConfig("steam_appid") or "1482520"
