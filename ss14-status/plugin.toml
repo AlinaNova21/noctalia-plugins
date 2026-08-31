@@ -47,6 +47,12 @@ label_key = "settings.steam_appid.label"
 default = "1482520"
 
 [[setting]]
+key = "launcher_path"
+type = "file"
+label_key = "settings.launcher_path.label"
+default = "~/.local/share/Steam/steamapps/common/Space Station 14 Playtest/SS14.Launcher"
+
+[[setting]]
 key = "launcher_db_path"
 type = "file"
 label_key = "settings.launcher_db_path.label"

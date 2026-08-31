@@ -25,7 +25,8 @@ right in your Noctalia bar.
 |---|---|---|
 | `poll_seconds` | `30` | How often each server's `/status` is fetched (5–600). |
 | `show_count` | `true` | Show the `online/total` count next to the logo in the bar. |
-| `steam_appid` | `1482520` | Steam app id of the SS14 launcher used for Launch. |
+| `launcher_path` | `~/.local/share/Steam/steamapps/common/Space Station 14 Playtest/SS14.Launcher` | Direct path to the SS14 launcher binary (preferred for Launch). |
+| `steam_appid` | `1482520` | Steam app id of the SS14 launcher (fallback Launch path). |
 | `launcher_db_path` | `~/.local/share/Space Station 14/launcher/settings.db` | SQLite DB the Sync button reads. |
 
 ## Server URIs
@@ -50,7 +51,9 @@ noctalia msg alinas/ss14-status sync         # import launcher favorites
 
 ## Notes
 
-- **Launch** requires the `steam` CLI on `PATH`. If it's missing, the connection address is copied
-  to the clipboard instead.
+- **Launch** runs the SS14 launcher binary directly with the `ss14://` address as a
+  positional argument (what the launcher expects). If the binary isn't found, it falls
+  back to `steam steam://run/<appid>//<ss14://...>`, and to copying the address if
+  Steam is also missing.
 - **Sync** requires `sqlite3` on `PATH` (standard on XDG desktops). It only ever reads the launcher DB.
 - Offline servers stay in the list, grayed, with the failure reason in the row/tooltip.

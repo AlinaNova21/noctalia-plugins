@@ -36,8 +36,22 @@ local function launchServer(row)
   if not row.online then
     return
   end
-  local appid = noctalia.getConfig("steam_appid") or "1482520"
   local ss14 = connUri(row)
+  -- Prefer the launcher binary directly: it accepts the ss14:// URI as a single
+  -- positional argument (SS14.Launcher <uri>). Steam streaming via // is brittle.
+  local launcherPath = noctalia.getConfig("launcher_path")
+  if type(launcherPath) == "string" and launcherPath ~= "" then
+    launcherPath = noctalia.expandPath(launcherPath)
+    if noctalia.fileExists(launcherPath) then
+      if noctalia.runAsync({ launcherPath, ss14 }) then
+        return
+      end
+      noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.launch_failed"))
+      return
+    end
+  end
+  -- Fallback: Steam URI (appid is the launcher itself).
+  local appid = noctalia.getConfig("steam_appid") or "1482520"
   local cmd = "steam steam://run/" .. appid .. "//" .. ss14
   if noctalia.commandExists("steam") then
     if not noctalia.runAsync(cmd) then

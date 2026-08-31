@@ -4,6 +4,7 @@
     "poll_seconds": { "label": "Poll interval (seconds)" },
     "show_count": { "label": "Show aggregate count in bar" },
     "steam_appid": { "label": "Steam app id (launcher)" },
+    "launcher_path": { "label": "SS14 launcher binary path" },
     "launcher_db_path": { "label": "Launcher settings database path" }
   },
   "ui": {
@@ -22,7 +23,7 @@
   },
   "ipc": {
     "offline": "Server offline: {host}",
-    "no_steam": "Steam CLI not found. Copied the connection address instead.",
+    "no_steam": "Launcher not found and Steam CLI unavailable. Copied the connection address instead.",
     "launch_failed": "Steam launch failed.",
     "no_sqlite": "sqlite3 not found.",
     "db_missing": "Launcher database not found.",
