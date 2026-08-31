@@ -1,0 +1,9 @@
+{
+  "title": "SS14 Status",
+  "settings": {
+    "poll_seconds": { "label": "Poll interval (seconds)" },
+    "show_count": { "label": "Show aggregate count in bar" },
+    "steam_appid": { "label": "Steam app id (launcher)" },
+    "launcher_db_path": { "label": "Launcher settings database path" }
+  }
+}
