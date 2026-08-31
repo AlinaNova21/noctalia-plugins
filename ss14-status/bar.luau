@@ -81,7 +81,7 @@ local function render()
   local total = #rows
   local online = countOnline()
   local container = barWidget.isVertical() and ui.column or ui.row
-  local children = { ui.glyph({ name = "plane", size = 16 }) }
+  local children = { ui.image({ path = "logo.png", width = 16, height = 16 }) }
   if showCount ~= false then
     table.insert(children, ui.label({
       text = (total == 0) and "–" or (tostring(online) .. "/" .. tostring(total)),
