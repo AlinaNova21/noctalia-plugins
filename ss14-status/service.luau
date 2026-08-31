@@ -10,10 +10,7 @@ local STATE_KEY = "ss14_status.servers"
 local LAST_KEY = "ss14_status.last"
 local CMD_KEY = "ss14_status.cmd"
 
-local DEFAULT_SERVERS = {
-  "ss14s://quantumblue.gay",
-  "ss14://denstation.net:1212",
-}
+local DEFAULT_SERVERS = {}
 
 local servers = {}  -- ordered array of uri strings
 local infoCache = {} -- host -> { connect_address=, engine_version= }

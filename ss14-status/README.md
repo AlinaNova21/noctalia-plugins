@@ -38,7 +38,8 @@ Entries use the SS14 server-browser scheme:
 | `ss14://host[:port]` | `http://host[:port]/status` | 1212 (SS14 standard, when omitted) |
 | `ss14s://host[:port]` | `https://host[:port]/status` | 443 |
 
-Defaults: `ss14s://quantumblue.gay`, `ss14://denstation.net:1212`.
+The server list starts **empty** — add servers in the panel or import them from your
+launcher favorites with **Sync**.
 
 ## IPC
 
