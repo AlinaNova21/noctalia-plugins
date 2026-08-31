@@ -5,5 +5,15 @@
     "show_count": { "label": "Show aggregate count in bar" },
     "steam_appid": { "label": "Steam app id (launcher)" },
     "launcher_db_path": { "label": "Launcher settings database path" }
+  },
+  "ipc": {
+    "offline": "Server offline: {host}",
+    "no_steam": "Steam CLI not found. Copied the connection address instead.",
+    "launch_failed": "Steam launch failed.",
+    "no_sqlite": "sqlite3 not found.",
+    "db_missing": "Launcher database not found.",
+    "synced": "Imported {n} servers from launcher.",
+    "invalid_uri": "Enter ss14://host:port or ss14s://host",
+    "dupe": "Already in the list: {uri}"
   }
 }
