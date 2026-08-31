@@ -2,6 +2,7 @@
 -- SS14 Status panel: rows with full status, Launch (Steam URI) + Copy,
 -- add/remove server list, sync from launcher DB, refresh now.
 
+local uri = require("./uri.luau")
 local timeutil = require("./timeutil.luau")
 
 local STATE_KEY = "ss14_status.servers"
@@ -28,6 +29,12 @@ local function connUri(row)
     if host and port then
       return "ss14://" .. host .. ":" .. port
     end
+  end
+  -- Normalize the config URI, applying the SS14 default port (1212 for ss14://,
+  -- 443 for ss14s://) so the launcher gets an unambiguous address.
+  local normalized = uri.connectUri(row.uri)
+  if normalized ~= nil then
+    return normalized
   end
   return row.uri
 end
