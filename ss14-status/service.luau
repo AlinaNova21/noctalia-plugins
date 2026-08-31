@@ -4,7 +4,7 @@
 -- Also caches /info (connect address, engine version) once per session and
 -- converts round_start_time via the bundled timestamp_ms.sh (GNU date).
 
-local uri = require("./uri")
+local uri = require("./uri.luau")
 
 local STATE_KEY = "ss14_status.servers"
 local LAST_KEY = "ss14_status.last"

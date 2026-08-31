@@ -2,7 +2,7 @@
 -- SS14 Status panel: rows with full status, Launch (Steam URI) + Copy,
 -- add/remove server list, sync from launcher DB, refresh now.
 
-local timeutil = require("./timeutil")
+local timeutil = require("./timeutil.luau")
 
 local STATE_KEY = "ss14_status.servers"
 local CMD_KEY = "ss14_status.cmd"

@@ -2,7 +2,7 @@
 -- SS14 Status bar widget: SS14 glyph + aggregate count, quick-info tooltip,
 -- click opens the panel.
 
-local timeutil = require("./timeutil")
+local timeutil = require("./timeutil.luau")
 
 local STATE_KEY = "ss14_status.servers"
 local rows = {}

@@ -2,7 +2,7 @@
 id = "alinas/ss14-status"
 name = "SS14 Status"
 version = "0.1.0"
-plugin_api = 24 # 18: panel.setWantsSecondTicks; 24: runAsync arg-array form
+plugin_api = 28 # 18: panel.setWantsSecondTicks; 24: runAsync arg-array; 28: context menu (reserved)
 author = "alina"
 license = "MIT"
 dependencies = []
