@@ -283,8 +283,12 @@ local function doSync(dbPath)
     noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.db_missing"))
     return
   end
-  local cmd = "sqlite3 \"" .. dbPath:gsub("\"", "\\\"") .. "\" \"SELECT COALESCE(Address,''), COALESCE(Name,'') FROM FavoriteServer ORDER BY RaiseTime;\""
-  noctalia.runAsync(cmd, function(result)
+  local dir = noctalia.pluginDir()
+  if dir == nil then
+    return
+  end
+  local script = dir .. "/import_favorites.sh"
+  noctalia.runAsync({ "/bin/sh", script, dbPath }, function(result)
     if result.exitCode ~= 0 then
       noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.db_missing"))
       return

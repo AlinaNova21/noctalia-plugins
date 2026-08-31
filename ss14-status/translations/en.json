@@ -6,6 +6,20 @@
     "steam_appid": { "label": "Steam app id (launcher)" },
     "launcher_db_path": { "label": "Launcher settings database path" }
   },
+  "ui": {
+    "empty": "No servers yet. Add one below or sync from launcher.",
+    "add_placeholder": "ss14s://host or ss14://host:port",
+    "sync": "Sync",
+    "sync_tooltip": "Import favorites from the SS14 launcher",
+    "refresh_tooltip": "Refresh now",
+    "launch_tooltip": "Launch via Steam",
+    "copy_tooltip": "Copy connection address",
+    "remove_tooltip": "Remove"
+  },
+  "flag": {
+    "bunker": "⛨ bunker",
+    "jail": "👶 jail"
+  },
   "ipc": {
     "offline": "Server offline: {host}",
     "no_steam": "Steam CLI not found. Copied the connection address instead.",
