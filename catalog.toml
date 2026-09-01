@@ -32,3 +32,16 @@ plugin_api = 9
 version = "0.1.0"
 updated_at = 1788154472
 rev = "e87d2edd8c9761bd4b322cbcc92e4c33ee89e476"
+
+[[plugin]]
+id = "alinanova21/xdrip-status"
+name = "xDrip Glucose"
+version = "0.1.0"
+updated_at = 1788239474
+added_at = 1788239474
+author = "AlinaNova21"
+license = "MIT"
+icon = "droplet"
+description = "Live glucose from xdrip-sync: bar value + trend, tooltip, and a history chart panel."
+plugin_api = 28
+tags = ["health", "cgm", "glucose", "monitoring"]

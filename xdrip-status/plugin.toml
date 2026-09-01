@@ -1,0 +1,86 @@
+# xDrip Glucose — current glucose reading, trend, and chart from your xdrip-sync service.
+id = "alinanova21/xdrip-status"
+name = "xDrip Glucose"
+version = "0.1.0"
+plugin_api = 28 # 18: panel.setWantsSecondTicks; matches ss14-status (ui.graph floor unverified, safe here)
+author = "AlinaNova21"
+license = "MIT"
+dependencies = []
+tags = ["health", "cgm", "glucose", "monitoring"]
+icon = "droplet"
+description = "Live glucose from xdrip-sync: bar value + trend, tooltip, and a history chart panel."
+
+[[widget]]
+id = "bar"
+entry = "bar.luau"
+
+[[panel]]
+id = "read"
+entry = "panel.luau"
+width = 760
+height = 440
+placement = "attached"
+open_near_click = true
+
+[[service]]
+id = "poll"
+entry = "service.luau"
+
+[[setting]]
+key = "url"
+type = "string"
+label_key = "settings.url.label"
+default = "http://localhost:8080"
+
+[[setting]]
+key = "token"
+type = "string"
+label_key = "settings.token.label"
+description_key = "settings.token.description"
+default = ""
+
+[[setting]]
+key = "hours"
+type = "int"
+label_key = "settings.hours.label"
+default = 8
+min = 1
+max = 168
+
+[[setting]]
+key = "bar_hours"
+type = "int"
+label_key = "settings.bar_hours.label"
+default = 1
+min = 1
+max = 24
+
+[[setting]]
+key = "low"
+type = "int"
+label_key = "settings.low.label"
+default = 70
+min = 40
+max = 120
+
+[[setting]]
+key = "high"
+type = "int"
+label_key = "settings.high.label"
+default = 180
+min = 120
+max = 300
+
+[[setting]]
+key = "poll_seconds"
+type = "int"
+label_key = "settings.poll_seconds.label"
+default = 60
+min = 15
+max = 900
+
+[[setting]]
+key = "notify_crossings"
+type = "bool"
+label_key = "settings.notify_crossings.label"
+default = true

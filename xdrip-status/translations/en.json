@@ -1,0 +1,32 @@
+{
+  "title": "xDrip Glucose",
+  "settings": {
+    "url": { "label": "xDrip sync URL", "description": "Base URL of your xdrip-sync server, e.g. http://host:8080" },
+    "token": { "label": "Read token (optional)", "description": "Leave empty if reads are open (XD_OPEN_READS=true). Create one with `xdrip-sync token create`." },
+    "hours": { "label": "Graph window (hours)" },
+    "bar_hours": { "label": "Bar sparkline window (hours)" },
+    "low": { "label": "Low threshold (mg/dL)" },
+    "high": { "label": "High threshold (mg/dL)" },
+    "poll_seconds": { "label": "Poll interval (seconds)" },
+    "notify_crossings": { "label": "Notify when a reading crosses a threshold" }
+  },
+  "ui": {
+    "current": "CURRENT",
+    "window_label": "History",
+    "period": "last {h}h",
+    "refresh_tooltip": "Refresh now",
+    "no_graph": "Not enough readings to draw a chart yet.",
+    "settings_hint": "Thresholds and notifications are set in plugin settings.",
+    "empty": "No readings yet. Point xDrip+ at xdrip-sync and wait for an upload.",
+    "error_timeout": "xdrip-sync unreachable — check the URL and try refreshing.",
+    "error_http": "xdrip-sync returned an error (check auth/URL):",
+    "error_parse": "Could not parse the xdrip-sync response."
+  },
+  "zone": {
+    "low": "low",
+    "high": "high"
+  },
+  "ipc": {
+    "cross": "Reading crossed the {zone} threshold: {value} mg/dL"
+  }
+}
