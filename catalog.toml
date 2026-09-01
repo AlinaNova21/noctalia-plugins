@@ -1,0 +1,34 @@
+# This file is auto-generated. Do not edit manually.
+# Do not include it in your commit.
+# Noctalia plugins catalog.
+# Index of every plugin this source ships: the minimum needed to render, search,
+# and compat-check the list. The per-plugin plugin.toml stays authoritative; the
+# host re-reads it on enable. Keep one [[plugin]] row per plugin subdirectory.
+# A [[plugin.release]] row names an older revision for a Noctalia below the tip's
+# plugin_api, so an older release stays installable instead of the plugin vanishing.
+# On every row, updated_at dates the commit that first shipped that row's version.
+
+[[plugin]]
+id = "alinanova21/ss14-status"
+name = "SS14 Status"
+version = "0.1.0"
+updated_at = 1788154472
+added_at = 1788154472
+author = "AlinaNova21"
+license = "MIT"
+icon = "rocket"
+description = "Live status of your SS14 servers: bar widget, tooltip, and panel."
+plugin_api = 28
+tags = ["games", "ss14", "server"]
+
+[[plugin.release]]
+plugin_api = 24
+version = "0.1.0"
+updated_at = 1788154472
+rev = "a72ab17ce1486a1a1a46c3a1a7baa51cac95053a"
+
+[[plugin.release]]
+plugin_api = 9
+version = "0.1.0"
+updated_at = 1788154472
+rev = "e87d2edd8c9761bd4b322cbcc92e4c33ee89e476"
