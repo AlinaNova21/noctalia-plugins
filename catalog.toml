@@ -11,8 +11,8 @@
 [[plugin]]
 id = "alinanova21/ss14-status"
 name = "SS14 Status"
-version = "0.1.0"
-updated_at = 1788154472
+version = "0.2.0"
+updated_at = 1788223793
 added_at = 1788154472
 author = "AlinaNova21"
 license = "MIT"
