@@ -4,14 +4,18 @@ Live status for a configurable list of [Space Station 14](https://spacestation14
 right in your Noctalia bar.
 
 - **Bar widget** — an SS14 logo glyph with a compact aggregate count (`online/total`). Hover for a
-  quick-info tooltip (players, map, round, preset, round time, panic bunker / baby jail flags).
-  Click to open the panel.
+  quick-info tooltip listing **only your favorited (pinned) servers** (using their display names
+  when set). Click to open the panel.
 - **Panel** — one row per server: name, players/max, map, round id, preset, round start time, and
   ⛨/👶 flags. **Launch** a server via Steam (`steam://run/<appid>//ss14://host:port`) or **copy**
   its connection address.
+- **Display names & favorites** — rename any entry (pencil button or ⋮ menu → Rename); pinned
+  entries sort to the top and drive the hover tooltip. Full server name moves to a subline when a
+  display name is set.
 - **Editable list** — add/remove servers inside the panel; persisted to the plugin data dir.
 - **Sync from launcher** — import your favorite servers straight from the SS14 launcher's
-  `settings.db` (append-only; never touches the launcher DB).
+  `settings.db` (append-only; never touches the launcher DB). The launcher's favorite **Name**
+  becomes the entry's display name.
 
 ## Install
 
@@ -57,4 +61,8 @@ noctalia msg alinanova21/ss14-status sync         # import launcher favorites
   back to `steam steam://run/<appid>//<ss14://...>`, and to copying the address if
   Steam is also missing.
 - **Sync** requires `sqlite3` on `PATH` (standard on XDG desktops). It only ever reads the launcher DB.
-- Offline servers stay in the list, grayed, with the failure reason in the row/tooltip.
+  Each synced favorite's **Name** becomes the entry's display name; a launcher name of an empty
+  record never blanks an existing display name.
+- The persisted `servers.json` stores entry objects `{ uri, display_name?, pinned? }` (v0.1.0's
+  plain string array is migrated automatically on load).
+- Offline servers stay in the list, grayed, with the failure reason in the row.

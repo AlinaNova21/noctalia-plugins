@@ -5,6 +5,7 @@
 -- converts round_start_time via the bundled timestamp_ms.sh (GNU date).
 
 local uri = require("./uri.luau")
+local entries = require("./entries.luau")
 
 local STATE_KEY = "ss14_status.servers"
 local LAST_KEY = "ss14_status.last"
@@ -12,7 +13,7 @@ local CMD_KEY = "ss14_status.cmd"
 
 local DEFAULT_SERVERS = {}
 
-local servers = {}  -- ordered array of uri strings
+local servers = {}  -- ordered array of entry objects: { uri, display_name?, pinned? }
 local infoCache = {} -- host -> { connect_address=, engine_version= }
 local roundStartCache = {} -- raw RFC3339 -> epoch ms (from timestamp_ms.sh)
 local pollGen = 0    -- bumped each HTTP response; stale responses discarded
@@ -40,7 +41,7 @@ end
 
 local function indexOf(s)
   for i, v in ipairs(servers) do
-    if v == s then
+    if v.uri == s then
       return i
     end
   end
@@ -54,21 +55,19 @@ local function loadServers()
     local raw = noctalia.readFile(path)
     if raw ~= nil then
       local decoded = noctalia.json.decode(raw)
-      if type(decoded) == "table" and type(decoded.servers) == "table" then
-        for _, s in ipairs(decoded.servers) do
-          if type(s) == "string" and uri.parseUri(s) ~= nil then
-            servers[#servers + 1] = s
-          end
-        end
+      if type(decoded) == "table" then
+        -- Lossless migration: v0.1.0 stored a bare string array; v0.2.0 stores
+        -- entry objects. normalize() accepts both (even mixed) and drops junk.
+        servers = entries.normalize(decoded.servers)
       end
     end
   end
   if #servers == 0 then
     for _, s in ipairs(DEFAULT_SERVERS) do
-      servers[#servers + 1] = s
+      servers[#servers + 1] = { uri = s }
     end
-    saveServers()
   end
+  saveServers() -- persist the migrated form so upgrades move forward immediately
 end
 
 local function publish(rows)
@@ -84,11 +83,11 @@ end
 local function sortByConfigOrder(rows)
   table.sort(rows, function(a, b)
     local ai, bi = nil, nil
-    for i, s in ipairs(servers) do
-      if a.uri == s then
+    for i, e in ipairs(servers) do
+      if a.uri == e.uri then
         ai = i
       end
-      if b.uri == s then
+      if b.uri == e.uri then
         bi = i
       end
     end
@@ -109,9 +108,15 @@ end
 -- configured server has a row (or immediately when nothing was requested).
 local rows_in_flight = {}
 
-local function buildRow(serverUri, res)
+-- Builds a published row for one server. `entry` carries the user-level
+-- metadata (display_name, pinned) that consumers render directly.
+local function buildRow(serverUri, entry, res)
   local p = uri.parseUri(serverUri)
   local row = { uri = serverUri, host = (p and p.host) or serverUri, online = false }
+  if entry then
+    row.display_name = entry.display_name
+    row.pinned = entry.pinned == true
+  end
   if not res or not res.ok or res.status ~= 200 then
     row.error = (not (res and res.ok)) and "timeout" or ("http_" .. tostring(res.status))
     return row
@@ -215,20 +220,23 @@ pollNow = function()
   pollGen = gen
   rows_in_flight = {}
   local toFetch = {}
-  for _, serverUri in ipairs(servers) do
+  for _, entry in ipairs(servers) do
+    local serverUri = entry.uri
     local p = uri.parseUri(serverUri)
     if p == nil then
       rows_in_flight[#rows_in_flight + 1] = {
-        uri = serverUri, host = serverUri, online = false, error = "skip",
+        uri = serverUri, entry = entry, host = serverUri, online = false, error = "skip",
+        display_name = entry.display_name, pinned = entry.pinned == true,
       }
     else
       local base = uri.statusBaseUrl(serverUri)
       if base == nil then
         rows_in_flight[#rows_in_flight + 1] = {
-          uri = serverUri, host = p.host, online = false, error = "skip",
+          uri = serverUri, entry = entry, host = p.host, online = false, error = "skip",
+          display_name = entry.display_name, pinned = entry.pinned == true,
         }
       else
-        toFetch[#toFetch + 1] = { uri = serverUri, base = base }
+        toFetch[#toFetch + 1] = { uri = serverUri, entry = entry, base = base }
       end
     end
   end
@@ -236,19 +244,21 @@ pollNow = function()
   local function maybePublish()
     if #rows_in_flight >= #servers then
       sortByConfigOrder(rows_in_flight)
-      publish(rows_in_flight)
+      -- Pins stack on top; order is otherwise config order (stable).
+      publish(entries.sortPinnedFirst(rows_in_flight))
     end
   end
 
   for _, f in ipairs(toFetch) do
     local myUri = f.uri
+    local myEntry = f.entry
     local myBase = f.base
     local myGen = gen
     noctalia.http({ url = myBase }, function(res)
       if myGen ~= pollGen then
         return -- stale
       end
-      local row = buildRow(myUri, res)
+      local row = buildRow(myUri, myEntry, res)
       rows_in_flight[#rows_in_flight + 1] = row
       if row.online then
         offlineNotified[row.host] = nil
@@ -295,16 +305,33 @@ local function doSync(dbPath)
       return
     end
     local added = 0
+    local changed = false
     for line in (result.stdout or ""):gmatch("[^\r\n]+") do
       if line ~= "__NO_DB__" and line ~= "__NO_SQLITE__" and line ~= "" then
-        local addr, _name = line:match("^([^|]*)|(.*)$")
-        if addr and addr ~= "" and uri.parseUri(addr) and indexOf(addr) == nil then
-          table.insert(servers, addr)
-          added += 1
+        local addr, name = line:match("^([^|]*)|(.*)$")
+        if addr and addr ~= "" and uri.parseUri(addr) then
+          local entry = nil
+          local existing = indexOf(addr)
+          if existing ~= nil then
+            entry = servers[existing]
+          else
+            entry = { uri = addr }
+            table.insert(servers, entry)
+            added += 1
+            changed = true
+          end
+          -- The launcher favorite Name becomes the display name. Pick c:
+          -- overwrite on sync, but an empty launcher name never blanks an
+          -- existing display name (nothing meaningful to overwrite with).
+          local nm = entries.sanitizeDisplayName(name)
+          if nm ~= nil and entry.display_name ~= nm then
+            entry.display_name = nm
+            changed = true
+          end
         end
       end
     end
-    if added > 0 then
+    if changed then
       saveServers()
       pollNow()
     end
@@ -325,7 +352,7 @@ function onIpc(event, payload)
     elseif indexOf(s) then
       noctalia.notifyError(noctalia.tr("title"), noctalia.tr("ipc.dupe", { uri = s }))
     else
-      table.insert(servers, s)
+      table.insert(servers, { uri = s })
       saveServers()
       pollNow()
     end
@@ -333,6 +360,26 @@ function onIpc(event, payload)
     local i = indexOf(payload or "")
     if i then
       table.remove(servers, i)
+      saveServers()
+      pollNow()
+    end
+  elseif event == "pin" then
+    if type(payload) ~= "table" then
+      return
+    end
+    local i = indexOf(payload.uri or "")
+    if i then
+      servers[i].pinned = payload.pinned == true
+      saveServers()
+      pollNow()
+    end
+  elseif event == "rename" then
+    if type(payload) ~= "table" then
+      return
+    end
+    local i = indexOf(payload.uri or "")
+    if i then
+      servers[i].display_name = entries.sanitizeDisplayName(payload.display_name)
       saveServers()
       pollNow()
     end
@@ -350,6 +397,10 @@ noctalia.state.watch(CMD_KEY, function(cmd)
     onIpc("add", cmd.uri)
   elseif op == "remove" then
     onIpc("remove", cmd.uri)
+  elseif op == "pin" then
+    onIpc("pin", { uri = cmd.uri, pinned = cmd.pinned })
+  elseif op == "rename" then
+    onIpc("rename", { uri = cmd.uri, display_name = cmd.display_name })
   elseif op == "poll" then
     pollNow()
   elseif op == "sync" then

@@ -15,7 +15,20 @@
     "refresh_tooltip": "Refresh now",
     "launch_tooltip": "Launch via Steam",
     "copy_tooltip": "Copy connection address",
-    "remove_tooltip": "Remove"
+    "remove_tooltip": "Remove",
+    "rename": "Rename",
+    "pin": "Pin to top",
+    "unpin": "Unpin",
+    "rename_placeholder": "Custom name (empty to keep the server name)",
+    "more_tooltip": "More actions",
+    "menu": {
+      "launch": "Launch",
+      "pin": "Pin to top",
+      "unpin": "Unpin",
+      "rename": "Rename",
+      "copy": "Copy connection address",
+      "remove": "Remove"
+    }
   },
   "flag": {
     "bunker": "⛨ bunker",

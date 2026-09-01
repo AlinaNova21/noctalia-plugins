@@ -1,8 +1,8 @@
 # SS14 Status — live status for a configurable list of Space Station 14 servers.
 id = "alinanova21/ss14-status"
 name = "SS14 Status"
-version = "0.1.0"
-plugin_api = 28 # 18: panel.setWantsSecondTicks; 24: runAsync arg-array; 28: context menu (reserved)
+version = "0.2.0"
+plugin_api = 28 # 18: panel.setWantsSecondTicks; 24: runAsync arg-array; 28: context menu
 author = "AlinaNova21"
 license = "MIT"
 dependencies = []

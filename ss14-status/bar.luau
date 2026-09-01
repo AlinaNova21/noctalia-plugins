@@ -1,8 +1,9 @@
 --!nonstrict
--- SS14 Status bar widget: SS14 glyph + aggregate count, quick-info tooltip,
--- click opens the panel.
+-- SS14 Status bar widget: SS14 glyph + aggregate count, favorites-only
+-- quick-info tooltip, click opens the panel.
 
 local timeutil = require("./timeutil.luau")
+local entries = require("./entries.luau")
 
 local STATE_KEY = "ss14_status.servers"
 local rows = {}
@@ -24,54 +25,47 @@ local function fmtElapsed(startMs)
   return timeutil.formatElapsed(noctalia.nowMs() - startMs, 0)
 end
 
--- quick info tooltip rows (name — players/max, then map/round/preset/time, flags)
+-- Tooltip: only favorited (pinned) servers, in panel order (rows are already
+-- sorted pins-first by the service). Head line uses the display name when set.
+-- No pins -> empty tooltip (nothing to favorite yet).
 local function tooltipRows()
   local out = {}
-  local online, offline = {}, {}
   for _, r in ipairs(rows) do
-    if r.online then
-      online[#online + 1] = r
-    else
-      offline[#offline + 1] = r
+    if r.pinned then
+      if r.online then
+        local head = entries.displayTitle(r) .. " — " .. tostring(r.players or 0) .. "/" .. tostring(r.soft_max_players or 0)
+        table.insert(out, { key = head, value = nil })
+        local detail = {}
+        if r.map then
+          detail[#detail + 1] = r.map
+        end
+        if r.round_id then
+          detail[#detail + 1] = "Round " .. tostring(r.round_id)
+        end
+        if r.preset then
+          detail[#detail + 1] = r.preset
+        end
+        local el = fmtElapsed(r.round_start_ms)
+        if el then
+          detail[#detail + 1] = el
+        end
+        if #detail > 0 then
+          table.insert(out, { key = table.concat(detail, " · "), value = nil })
+        end
+        local flags = {}
+        if r.panic_bunker then
+          flags[#flags + 1] = "⛨ bunker"
+        end
+        if r.baby_jail then
+          flags[#flags + 1] = "👶 jail"
+        end
+        if #flags > 0 then
+          table.insert(out, { key = table.concat(flags, " · "), value = nil })
+        end
+      else
+        table.insert(out, { key = entries.displayTitle(r) .. " (offline)", value = nil })
+      end
     end
-  end
-  for _, r in ipairs(online) do
-    local head = (r.name or r.host) .. " — " .. tostring(r.players or 0) .. "/" .. tostring(r.soft_max_players or 0)
-    table.insert(out, { key = head, value = nil })
-    local detail = {}
-    if r.map then
-      detail[#detail + 1] = r.map
-    end
-    if r.round_id then
-      detail[#detail + 1] = "Round " .. tostring(r.round_id)
-    end
-    if r.preset then
-      detail[#detail + 1] = r.preset
-    end
-    local el = fmtElapsed(r.round_start_ms)
-    if el then
-      detail[#detail + 1] = el
-    end
-    if #detail > 0 then
-      table.insert(out, { key = table.concat(detail, " · "), value = nil })
-    end
-    local flags = {}
-    if r.panic_bunker then
-      flags[#flags + 1] = "⛨ bunker"
-    end
-    if r.baby_jail then
-      flags[#flags + 1] = "👶 jail"
-    end
-    if #flags > 0 then
-      table.insert(out, { key = table.concat(flags, " · "), value = nil })
-    end
-  end
-  if #offline > 0 then
-    local hosts = {}
-    for _, r in ipairs(offline) do
-      hosts[#hosts + 1] = r.host
-    end
-    table.insert(out, { key = "Offline:", value = table.concat(hosts, ", ") })
   end
   return out
 end

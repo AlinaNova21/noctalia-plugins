@@ -1,9 +1,10 @@
 --!nonstrict
--- SS14 Status panel: rows with full status, Launch (Steam URI) + Copy,
--- add/remove server list, sync from launcher DB, refresh now.
+-- SS14 Status panel: rows with full status, launch / pin / rename / copy /
+-- remove, add/remove server list, sync from launcher DB, refresh now.
 
 local uri = require("./uri.luau")
 local timeutil = require("./timeutil.luau")
+local entries = require("./entries.luau")
 
 local STATE_KEY = "ss14_status.servers"
 local CMD_KEY = "ss14_status.cmd"
@@ -13,6 +14,9 @@ local draft = ""
 local draftKey = 0
 local pendingDelete = nil
 local syncing = false
+local renameUri = nil   -- uri of the row being renamed (nil = none)
+local renameDraft = ""  -- current input text while renaming
+local renameKey = 0     -- bumped to remount the rename input
 
 -- Forward declaration: render is referenced by callbacks defined above it.
 local render
@@ -97,9 +101,56 @@ local function copyServer(row)
   noctalia.copyToClipboard(connUri(row), "text/plain")
 end
 
+local function findRow(uri_)
+  for _, r in ipairs(rows) do
+    if r.uri == uri_ then
+      return r
+    end
+  end
+  return nil
+end
+
+local function startRename(row)
+  renameUri = row.uri
+  renameDraft = row.display_name or row.name or row.host or ""
+  renameKey += 1
+  render()
+end
+
+local function togglePin(row)
+  noctalia.state.set(CMD_KEY, { op = "pin", uri = row.uri, pinned = not row.pinned })
+end
+
+-- Per-row "⋮" menu: launch / pin·unpin / rename / copy / remove (plugin_api 28).
+local function openRowMenu(row)
+  local items = {}
+  table.insert(items, { id = "launch", label = noctalia.tr("ui.menu.launch"), enabled = row.online })
+  if row.pinned then
+    table.insert(items, { id = "unpin", label = noctalia.tr("ui.menu.unpin") })
+  else
+    table.insert(items, { id = "pin", label = noctalia.tr("ui.menu.pin") })
+  end
+  table.insert(items, { id = "rename", label = noctalia.tr("ui.menu.rename") })
+  table.insert(items, { id = "copy", label = noctalia.tr("ui.menu.copy") })
+  table.insert(items, { id = "remove", label = noctalia.tr("ui.menu.remove") })
+  panel.openContextMenu({
+    items = items,
+    onActivate = "onRowMenuActivate",
+    context = row.uri,
+  })
+end
+
 local function serverRow(row)
   local online = row.online
-  local title = online and (row.name or row.host) or (row.host .. " (offline)")
+  local hasDisplayName = type(row.display_name) == "string" and row.display_name ~= ""
+  local title = entries.displayTitle(row) or row.uri
+  if not online then
+    title = title .. " (offline)"
+  end
+  local serverNameSub = nil
+  if hasDisplayName then
+    serverNameSub = row.name or row.host -- the full server name, shown as a subline
+  end
   local line2 = {}
   if online then
     if row.map then
@@ -135,11 +186,19 @@ local function serverRow(row)
     end,
   }))
   table.insert(actionButtons, ui.button({
-    glyph = "copy",
-    variant = "ghost",
-    tooltip = noctalia.tr("ui.copy_tooltip"),
+    glyph = row.pinned and "pin" or "pin-outline",
+    variant = row.pinned and "primary" or "ghost",
+    tooltip = noctalia.tr(row.pinned and "ui.unpin" or "ui.pin"),
     onClick = function()
-      copyServer(row)
+      togglePin(row)
+    end,
+  }))
+  table.insert(actionButtons, ui.button({
+    glyph = "pencil",
+    variant = "ghost",
+    tooltip = noctalia.tr("ui.rename"),
+    onClick = function()
+      startRename(row)
     end,
   }))
   if pendingDelete == row.uri then
@@ -171,18 +230,47 @@ local function serverRow(row)
       end,
     }))
   end
+  table.insert(actionButtons, ui.button({
+    glyph = "dots-vertical",
+    variant = "ghost",
+    tooltip = noctalia.tr("ui.more_tooltip"),
+    onClick = function()
+      openRowMenu(row)
+    end,
+  }))
   local actions = ui.row({ gap = 4, align = "center" }, actionButtons)
 
   -- Left column children (built with statements; Luau has no if-expressions).
-  local titleRowChildren = {
-    ui.label({ text = title, fontWeight = "bold", fontSize = 13, flexGrow = 1 }),
-  }
-  if online then
-    table.insert(titleRowChildren, ui.label({ text = playersLabel(row), fontWeight = "bold", fontSize = 13, color = "primary" }))
+  local titleRowChildren
+  if renameUri == row.uri then
+    titleRowChildren = {
+      ui.input({
+        key = "rename-" .. renameKey,
+        value = renameDraft,
+        placeholder = noctalia.tr("ui.rename_placeholder"),
+        flexGrow = 1,
+        onChange = function(v)
+          renameDraft = v
+        end,
+        onSubmit = "onRenameSubmit",
+      }),
+    }
+  else
+    titleRowChildren = {
+      ui.label({ text = title, fontWeight = "bold", fontSize = 13, flexGrow = 1 }),
+    }
+    if online then
+      table.insert(titleRowChildren, ui.label({ text = playersLabel(row), fontWeight = "bold", fontSize = 13, color = "primary" }))
+    end
   end
   local colChildren = {
     ui.row({ gap = 6, align = "center" }, titleRowChildren),
   }
+  -- Subline: the full server name, only when a display name is set and it
+  -- actually differs from the title (avoids a duplicated line).
+  if hasDisplayName and serverNameSub ~= nil and serverNameSub ~= title then
+    table.insert(colChildren, ui.label({ text = serverNameSub, color = "on_surface_variant", fontSize = 10, maxLines = 1 }))
+  end
   if online and #line2 > 0 then
     table.insert(colChildren, ui.label({ text = table.concat(line2, " · "), color = "on_surface_variant", fontSize = 10, maxLines = 2 }))
   elseif not online then
@@ -283,11 +371,49 @@ function onSync()
   render()
 end
 
+function onRenameSubmit()
+  if renameUri ~= nil then
+    noctalia.state.set(CMD_KEY, { op = "rename", uri = renameUri, display_name = renameDraft })
+    renameUri = nil
+    renameDraft = ""
+    render()
+  end
+end
+
+function onRenameCancel()
+  renameUri = nil
+  renameDraft = ""
+  render()
+end
+
+function onRowMenuActivate(actionId, context)
+  local row = findRow(context or "")
+  if row == nil then
+    return
+  end
+  if actionId == "launch" then
+    launchServer(row)
+  elseif actionId == "pin" then
+    noctalia.state.set(CMD_KEY, { op = "pin", uri = row.uri, pinned = true })
+  elseif actionId == "unpin" then
+    noctalia.state.set(CMD_KEY, { op = "pin", uri = row.uri, pinned = false })
+  elseif actionId == "rename" then
+    startRename(row)
+  elseif actionId == "copy" then
+    copyServer(row)
+  elseif actionId == "remove" then
+    pendingDelete = row.uri
+    render()
+  end
+end
+
 function onOpen(_ctx)
   rows = noctalia.state.get(STATE_KEY) or {}
   pendingDelete = nil
   draft = ""
   draftKey += 1
+  renameUri = nil
+  renameDraft = ""
   panel.setWantsSecondTicks(true)
   render()
 end
